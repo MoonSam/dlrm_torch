@@ -15,8 +15,8 @@ fi
 cpu=1
 gpu=1
 pt=1
-c2=1
 
+#------------------
 ncores=28 #12 #6
 nsockets="0"
 
@@ -24,14 +24,17 @@ ngpus="1 2 4 8"
 
 numa_cmd="numactl --physcpubind=0-$((ncores-1)) -m $nsockets" #run on one socket, without HT
 dlrm_pt_bin="python dlrm_s_pytorch.py"
-dlrm_c2_bin="python dlrm_s_caffe2.py"
 
-data=random #synthetic
+#------Change the data type into sythetic------------
+data=synthetic
 print_freq=100
 rand_seed=727
-
+#------------------
+ncores=28 #12 #6
 c2_net="async_scheduling"
 
+#---------Model Parameter---------
+ncores=28 #12 #6
 #Model param
 mb_size=2048 #1024 #512 #256
 nbatches=1000 #500 #100
@@ -58,9 +61,6 @@ _args=" --num-batches="${nbatches}\
 " --print-time"\
 " --enable-profiling "
 
-c2_args=" --caffe2-net-type="${c2_net}
-
-
 # CPU Benchmarking
 if [ $cpu = 1 ]; then
   echo "--------------------------------------------"
@@ -80,21 +80,6 @@ if [ $cpu = 1 ]; then
     # move profiling file(s)
     mv $outp ${outf//".log"/".prof"}
     mv ${outp//".prof"/".json"} ${outf//".log"/".json"}
-
-  fi
-  if [ $c2 = 1 ]; then
-    outf="model1_CPU_C2_$ncores.log"
-    outp="dlrm_s_caffe2.prof"
-    echo "-------------------------------"
-    echo "Running C2 (log file: $outf)"
-    echo "-------------------------------"
-    cmd="$numa_cmd $dlrm_c2_bin --mini-batch-size=$mb_size $_args $c2_args $dlrm_extra_option 1> $outf 2> $outp"
-    echo $cmd
-    eval $cmd
-    min=$(grep "iteration" $outf | awk 'BEGIN{best=999999} {if (best > $7) best=$7} END{print best}')
-    echo "Min time per iteration = $min"
-    # move profiling file (collected from stderr above)
-    mv $outp ${outf//".log"/".prof"}
   fi
 fi
 
@@ -128,20 +113,6 @@ if [ $gpu = 1 ]; then
       # move profiling file(s)
       mv $outp ${outf//".log"/".prof"}
       mv ${outp//".prof"/".json"} ${outf//".log"/".json"}
-    fi
-    if [ $c2 = 1 ]; then
-      outf="model1_GPU_C2_$_ng.log"
-      outp="dlrm_s_caffe2.prof"
-      echo "-------------------------------"
-      echo "Running C2 (log file: $outf)"
-      echo "-------------------------------"
-      cmd="$cuda_arg $dlrm_c2_bin --mini-batch-size=$_mb_size $_args $c2_args --use-gpu $dlrm_extra_option 1> $outf 2> $outp"
-      echo $cmd
-      eval $cmd
-      min=$(grep "iteration" $outf | awk 'BEGIN{best=999999} {if (best > $7) best=$7} END{print best}')
-      echo "Min time per iteration = $min"
-      # move profiling file (collected from stderr above)
-      mv $outp ${outf//".log"/".prof"}
     fi
   done
 fi
