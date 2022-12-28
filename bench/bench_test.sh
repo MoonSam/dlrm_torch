@@ -6,7 +6,7 @@ gpu=1
 pt=1
 
 #------------------
-ncores=28 #12 #6
+ncores=6 #12 #6 #28
 nsockets="0"
 
 ngpus="1 2 4 8"
@@ -19,14 +19,14 @@ data=synthetic
 print_freq=100
 rand_seed=727
 #------------------
-ncores=4
+ncores=6
 
 #---------Model Parameter---------
-ncores=28 #12 #6
+ncores=6 #12 #6
 #Model param
-mb_size=2048 #1024 #512 #256
-nbatches=1000 #500 #100
-bot_mlp="512-512-64"
+mb_size=256 #2048 #1024 #512 #256
+nbatches=100 #1000 #500 #100
+bot_mlp="512-512-64" #Structure of MLP model.
 top_mlp="1024-1024-1024-1"
 emb_size=64
 nindices=100
